@@ -417,8 +417,13 @@ const SolarSystemView: React.FC<SolarSystemViewProps> = ({ levelId, onBack }) =>
                 <Button
                   variant="hero"
                   onClick={() => {
-                    setSelectedTopic(null);
-                    navigate(`/challenge/${selectedTopic._id}?from=learning-path`);
+                    const targetId = selectedTopic?._id || selectedTopic?.id;
+                    if (targetId) {
+                      setSelectedTopic(null);
+                      navigate(`/challenge/${targetId}?from=learning-path`);
+                    } else {
+                      toast.error("Module ID is missing or invalid.");
+                    }
                   }}
                   className="rounded-xl px-6 font-bold text-xs gap-2 w-full sm:w-auto"
                 >

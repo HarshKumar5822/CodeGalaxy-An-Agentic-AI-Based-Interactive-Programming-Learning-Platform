@@ -81,19 +81,28 @@ const LevelMap: React.FC<LevelMapProps> = ({ category, difficulty }) => {
                     <div className="absolute -left-[11px] top-0 w-6 h-6 rounded-full bg-primary flex items-center justify-center text-primary-foreground text-xs font-bold">
                         {level.levelNumber}
                     </div>
-                    <Link to={level.challenges && level.challenges.length > 0 ? `/challenge/${level.challenges[0]}?from=learning-path` : '/challenges?from=learning-path'}>
-                        <div className="bg-card border border-border/50 rounded-lg p-4 hover:border-primary/50 transition-colors group cursor-pointer h-full">
-                            <div className="flex justify-between items-start">
-                                <div>
-                                    <h3 className="font-display font-bold text-lg">{level.title}</h3>
-                                    <p className="text-muted-foreground text-sm">{level.description}</p>
+                    {(() => {
+                        const firstId = level.challenges && level.challenges.length > 0 
+                            ? (typeof level.challenges[0] === 'object' ? (level.challenges[0]._id || level.challenges[0].id) : level.challenges[0])
+                            : null;
+                        const targetUrl = firstId ? `/challenge/${firstId}?from=learning-path` : '/challenges?from=learning-path';
+
+                        return (
+                            <Link to={targetUrl}>
+                                <div className="bg-card border border-border/50 rounded-lg p-4 hover:border-primary/50 transition-colors group cursor-pointer h-full">
+                                    <div className="flex justify-between items-start">
+                                        <div>
+                                            <h3 className="font-display font-bold text-lg">{level.title}</h3>
+                                            <p className="text-muted-foreground text-sm">{level.description}</p>
+                                        </div>
+                                        <div className="bg-primary/10 p-2 rounded-full group-hover:bg-primary group-hover:text-primary-foreground transition-all">
+                                            <Play className="w-5 h-5 ml-0.5" />
+                                        </div>
+                                    </div>
                                 </div>
-                                <div className="bg-primary/10 p-2 rounded-full group-hover:bg-primary group-hover:text-primary-foreground transition-all">
-                                    <Play className="w-5 h-5 ml-0.5" />
-                                </div>
-                            </div>
-                        </div>
-                    </Link>
+                            </Link>
+                        );
+                    })()}
                 </motion.div>
             ))}
         </div>

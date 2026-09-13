@@ -28,8 +28,8 @@
 
 const GROQ_BASE_URL = process.env.GROQ_BASE_URL || 'https://api.groq.com/openai/v1';
 const GROQ_API_KEY = process.env.GROQ_API_KEY;
-const GROQ_JSON_MODEL = process.env.GROQ_JSON_MODEL || process.env.GROQ_MODEL || 'llama-3.1-8b-instant';
-const GROQ_CHAT_MODEL = process.env.GROQ_CHAT_MODEL || process.env.GROQ_MODEL || 'llama-3.1-8b-instant';
+const GROQ_JSON_MODEL = process.env.GROQ_JSON_MODEL || process.env.GROQ_MODEL || 'openai/gpt-oss-20b';
+const GROQ_CHAT_MODEL = process.env.GROQ_CHAT_MODEL || process.env.GROQ_MODEL || 'openai/gpt-oss-20b';
 const GROQ_VISION_MODEL = process.env.GROQ_VISION_MODEL || 'qwen/qwen3.6-27b';
 
 const isGroqConfigured = () => Boolean(GROQ_API_KEY);

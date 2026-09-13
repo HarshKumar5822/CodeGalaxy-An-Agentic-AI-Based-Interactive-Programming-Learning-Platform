@@ -1,0 +1,35 @@
+# Dependencies
+node_modules/
+**/node_modules/
+
+# Environment files & secrets
+.env
+.env.*
+!.env.example
+**/ .env
+backend/.env
+frontend/.env
+
+# Production builds
+dist/
+build/
+**/dist/
+**/build/
+
+# Temporary code runner files
+temp_codes/
+temp_outputs/
+**/temp_codes/
+**/temp_outputs/
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# System & IDE files
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/

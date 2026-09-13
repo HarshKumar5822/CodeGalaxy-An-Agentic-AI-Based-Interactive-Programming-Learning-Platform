@@ -1,0 +1,202 @@
+import { useRef, useEffect, useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import Editor from '@monaco-editor/react';
+import { Play, RotateCcw, ChevronDown, CheckCircle2 } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { codeTemplates } from '@/data/mockData';
+
+export type Language = 'python' | 'javascript' | 'java' | 'cpp' | 'c';
+
+interface CodeEditorProps {
+  onCodeChange?: (code: string) => void;
+  onLanguageChange?: (language: Language) => void;
+  onRun?: (code: string, language: Language) => void;
+  onSubmit?: (code: string, language: Language) => void;
+  initialCode?: string;
+  language?: Language;
+  isRunning?: boolean;
+}
+
+const languageLabels: Record<Language, string> = {
+  python: 'Python',
+  javascript: 'JavaScript',
+  java: 'Java',
+  cpp: 'C++',
+  c: 'C',
+};
+
+const monacoLanguageMap: Record<Language, string> = {
+  python: 'python',
+  javascript: 'javascript',
+  java: 'java',
+  cpp: 'cpp',
+  c: 'c',
+};
+
+const CodeEditor = ({ onCodeChange, onLanguageChange, onRun, onSubmit, initialCode, language: initialLanguage = 'python', isRunning = false }: CodeEditorProps) => {
+  const [language, setLanguage] = useState<Language>(initialLanguage);
+  const [code, setCode] = useState(initialCode || codeTemplates[language]);
+  const [isLanguageOpen, setIsLanguageOpen] = useState(false);
+
+  const editorRef = useRef<any>(null);
+
+  useEffect(() => {
+    if (initialCode && initialCode !== code) {
+      setCode(initialCode);
+    }
+  }, [initialCode]);
+
+  // Sync language when initialLanguage changes from parent
+  useEffect(() => {
+    setLanguage(initialLanguage);
+  }, [initialLanguage]);
+
+  const handleEditorMount = (editor: any) => {
+    editorRef.current = editor;
+  };
+
+  const handleCodeChange = (value: string | undefined) => {
+    const newCode = value || '';
+    setCode(newCode);
+    onCodeChange?.(newCode);
+  };
+
+  const handleRun = () => {
+    onRun?.(code, language);
+  };
+
+  const handleSubmit = () => {
+    onSubmit?.(code, language);
+  }
+
+  const handleReset = () => {
+    const template = codeTemplates[language];
+    setCode(template);
+    onCodeChange?.(template);
+  };
+
+  return (
+    <div className="h-full flex flex-col overflow-hidden bg-card relative">
+      {/* Header Actions */}
+      <div className="flex items-center justify-between px-4 py-3 border-b border-border/50 bg-[#1e1e1e]">
+        {/* Language selector */}
+        <div className="relative">
+          <button
+            onClick={() => setIsLanguageOpen(!isLanguageOpen)}
+            className="flex items-center gap-2 px-3 py-1.5 rounded-md bg-[#252526] hover:bg-[#2d2d2d] border border-white/5 transition-colors text-sm font-medium text-gray-300"
+          >
+            {languageLabels[language]}
+            <ChevronDown className={`h-4 w-4 transition-transform ${isLanguageOpen ? 'rotate-180' : ''}`} />
+          </button>
+
+          <AnimatePresence>
+            {isLanguageOpen && (
+              <motion.div
+                initial={{ opacity: 0, y: -5 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -5 }}
+                className="absolute top-full left-0 mt-1 py-1 bg-[#252526] border border-white/5 rounded-md shadow-2xl z-50 min-w-[140px]"
+              >
+                {(Object.keys(languageLabels) as Language[]).map((lang) => (
+                  <button
+                    key={lang}
+                    onClick={() => {
+                      const newTemplate = codeTemplates[lang];
+                      setLanguage(lang);
+                      setCode(newTemplate);
+                      onCodeChange?.(newTemplate);
+                      onLanguageChange?.(lang);
+                      setIsLanguageOpen(false);
+                    }}
+                    className={`w-full px-3 py-2 text-left text-sm hover:bg-[#333333] transition-colors ${lang === language ? 'text-[#00ff88]' : 'text-gray-300'
+                      }`}
+                  >
+                    {languageLabels[lang]}
+                  </button>
+                ))}
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
+        
+        {/* Sync Indicator */}
+        <div className="flex-1 px-4 flex items-center gap-2">
+           <div className="w-1.5 h-1.5 rounded-full bg-[#00ff88] animate-pulse shadow-[0_0_8px_rgba(0,255,136,0.5)]"></div>
+           <span className="text-[10px] uppercase font-black tracking-widest text-[#00ff88]/60">Neural Sync Active</span>
+        </div>
+
+        {/* Action buttons */}
+        <div className="flex items-center gap-2">
+          <Button variant="ghost" size="sm" onClick={handleReset} className="text-gray-400 hover:text-white">
+            <RotateCcw className="h-4 w-4" />
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={handleRun}
+            disabled={isRunning}
+            className="gap-2 border-white/10 hover:bg-white/5 text-gray-200 hover:text-white"
+          >
+            {isRunning ? (
+              <motion.div
+                animate={{ rotate: 360 }}
+                transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
+                className="h-4 w-4 border-2 border-gray-400 border-t-transparent rounded-full"
+              />
+            ) : (
+              <Play className="h-4 w-4 text-green-400" />
+            )}
+            Run Code
+          </Button>
+          <Button
+            variant="success"
+            size="sm"
+            onClick={handleSubmit}
+            disabled={isRunning}
+            className="gap-2 bg-[#00ff88] text-[#0f172a] hover:bg-[#00cc6a] shadow-[0_0_15px_rgba(0,255,136,0.2)] hover:shadow-[0_0_20px_rgba(0,255,136,0.4)] transition-all"
+          >
+            <CheckCircle2 className="h-4 w-4" />
+            Submit
+          </Button>
+        </div>
+      </div>
+
+      {/* Editor Main */}
+      <div className="flex-1 overflow-hidden bg-[#1e1e1e]">
+        <Editor
+          height="100%"
+          language={monacoLanguageMap[language]}
+          value={code}
+          onChange={handleCodeChange}
+          onMount={handleEditorMount}
+          theme="vs-dark"
+          options={{
+            minimap: { enabled: false },
+            fontSize: 14,
+            fontFamily: "'JetBrains Mono', 'Fira Code', monospace",
+            padding: { top: 16, bottom: 16 },
+            scrollBeyondLastLine: false,
+            lineNumbers: 'on',
+            renderLineHighlight: 'all',
+            glyphMargin: false,
+            folding: true,
+            lineDecorationsWidth: 10,
+            lineNumbersMinChars: 3,
+            automaticLayout: true,
+            tabSize: 4,
+            insertSpaces: true,
+            wordWrap: 'on',
+            contextmenu: true,
+            smoothScrolling: true,
+            cursorBlinking: 'smooth',
+            cursorSmoothCaretAnimation: 'on',
+            formatOnPaste: true,
+          }}
+        />
+      </div>
+
+    </div>
+  );
+};
+
+export default CodeEditor;

@@ -261,6 +261,10 @@ npm run dev
 
 <div align="center">
 
+## 🎥 Project Demo
+
+[Watch the Project Demo](https://drive.google.com/file/d/19MWn_W9F-VSoK7UXpruX3J6F-ZJKS0PE/view?usp=drive_link)
+
 ### 🌌 CodeGalaxy — Transforming Code Learning Into an Interactive Universe
 
 **Created with ❤️ by [Harsh Kumar](https://github.com/HarshKumar5822)**

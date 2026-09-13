@@ -12,6 +12,7 @@ import api from '@/utils/api';
 
 interface Challenge {
   _id: string;
+  id?: string;
   title: string;
   description: string;
   type: string;

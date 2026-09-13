@@ -8,7 +8,7 @@ interface Level {
     levelNumber: number;
     title: string;
     description: string;
-    challenges: string[]; // Array of Challenge IDs
+    challenges: any[]; // Array of Challenge IDs or objects
 }
 
 interface LevelMapProps {

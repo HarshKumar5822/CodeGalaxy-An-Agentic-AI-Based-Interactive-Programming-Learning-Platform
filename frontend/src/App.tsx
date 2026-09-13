@@ -8,6 +8,7 @@ import { ThemeProvider } from "@/components/theme/ThemeProvider";
 import { GamificationProvider } from "@/contexts/GamificationContext";
 import ProtectedRoute from "@/components/auth/ProtectedRoute";
 import AIChatbot from "./components/CodeGalaxy/Learning/AIChatbot";
+import GlobalFooter from "./components/layout/GlobalFooter";
 
 // Lazy-loaded pages to enable code-splitting and ultra-fast initial load
 const Landing = lazy(() => import("./pages/Landing"));
@@ -232,6 +233,7 @@ const App = () => (
               </Routes>
             </Suspense>
             <AIChatbot />
+            <GlobalFooter />
           </BrowserRouter>
         </GamificationProvider>
       </ThemeProvider>

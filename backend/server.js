@@ -1,4 +1,5 @@
-const express = require('express'); // Trigger restart for 5005
+/* Created by Harsh Kumar */
+const express = require('express');
 const dotenv = require('dotenv');
 const cors = require('cors');
 const connectDB = require('./config/db');
@@ -34,7 +35,7 @@ app.use('/api/rag', require('./routes/ragRoutes'));
 const PORT = process.env.PORT || 5000;
 
 app.listen(PORT, () => {
-    console.log(`Server running on port ${PORT}`);
+    console.log(`Server running on port ${PORT} | Created by Harsh Kumar`);
     // Fire-and-forget: doesn't block server startup, just logs provider health to the console.
     require('./services/geminiService').checkAiProviders().catch(e => console.error('[AI] Diagnostic check crashed:', e.message));
 });

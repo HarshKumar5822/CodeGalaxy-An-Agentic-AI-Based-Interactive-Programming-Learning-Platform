@@ -98,17 +98,23 @@ const MapContent = ({ category, difficulty, onDrillDown, onTrackChange, onOpenSe
       setLoading(true);
       setError(null);
       const [levelsRes, progressRes] = await Promise.all([
-        api.get('/learning/levels', { params: { category, difficulty } }),
-        api.get('/learning/progress')
+        api.get('/learning/levels', { params: { category: category || 'Python', difficulty: difficulty || 'Beginner' } }),
+        api.get('/learning/progress').catch((err) => {
+          console.warn("Could not fetch progress, continuing with clean progress", err);
+          return { data: { completedChallenges: [] } };
+        })
       ]);
       
-      if (Array.isArray(levelsRes.data)) {
+      if (Array.isArray(levelsRes?.data)) {
         setLevels(levelsRes.data);
+      } else {
+        setLevels([]);
       }
-      setUserProgress(progressRes.data);
-    } catch (err) {
+      setUserProgress(progressRes?.data || { completedChallenges: [] });
+    } catch (err: any) {
       console.error("Failed to fetch levels or progress", err);
-      setError("Failed to sync neural grid. Mission Control is offline.");
+      const msg = err?.response?.data?.message || err?.message || "Failed to sync neural grid. Mission Control is offline.";
+      setError(msg);
     } finally {
       setLoading(false);
     }
@@ -217,14 +223,42 @@ const MapContent = ({ category, difficulty, onDrillDown, onTrackChange, onOpenSe
 
   if (error) return (
     <div className="h-full w-full flex items-center justify-center bg-black/90 backdrop-blur-md">
-       <div className="flex flex-col items-center gap-6 p-10 text-center max-w-md">
-          <div className="w-20 h-20 rounded-full bg-red-500/10 border border-red-500/20 flex items-center justify-center">
-             <AlertCircle className="w-10 h-10 text-red-500 animate-pulse" />
+       <div className="flex flex-col items-center gap-5 p-8 text-center max-w-md">
+          <div className="w-16 h-16 rounded-full bg-red-500/10 border border-red-500/20 flex items-center justify-center">
+             <AlertCircle className="w-8 h-8 text-red-500 animate-pulse" />
           </div>
           <h3 className="text-xl font-display font-black text-white uppercase tracking-wider">Neural Sync Failed</h3>
           <p className="text-red-400 text-xs font-mono uppercase tracking-widest">{error}</p>
-          <p className="text-white/40 text-[10px] uppercase font-black tracking-wider mt-4 leading-relaxed">Please ensure the backend server is active and running on port 5005.</p>
+          <button
+             onClick={() => fetchData()}
+             className="px-6 py-2.5 rounded-xl bg-primary hover:bg-primary/80 text-primary-foreground font-black uppercase text-xs tracking-wider transition-all shadow-lg hover:shadow-primary/30 cursor-pointer"
+          >
+             Retry Sync
+          </button>
+          <p className="text-white/40 text-[10px] uppercase font-black tracking-wider mt-2 leading-relaxed">Please ensure the backend server is active and running on port 5005.</p>
        </div>
+    </div>
+  );
+
+  if (!loading && !error && levels.length === 0) return (
+    <div className="h-full w-full flex items-center justify-center bg-black/80 backdrop-blur-md p-6">
+      <div className="flex flex-col items-center gap-4 text-center max-w-md">
+        <div className="w-16 h-16 rounded-full bg-primary/10 border border-primary/30 flex items-center justify-center text-primary">
+          <Compass className="w-8 h-8 animate-spin" style={{ animationDuration: '10s' }} />
+        </div>
+        <h3 className="text-lg font-display font-black text-white uppercase tracking-wider">Uncharted Sector</h3>
+        <p className="text-muted-foreground text-xs leading-relaxed">
+          No training modules found for <span className="text-primary font-bold">{category || 'Selected Sector'}</span> at <span className="text-primary font-bold">{difficulty || 'Beginner'}</span> level.
+        </p>
+        {onOpenSelector && (
+          <button
+            onClick={onOpenSelector}
+            className="px-5 py-2 rounded-xl bg-primary/20 border border-primary/40 text-primary hover:bg-primary hover:text-white font-black uppercase text-xs tracking-wider transition-all cursor-pointer"
+          >
+            Switch Knowledge Track
+          </button>
+        )}
+      </div>
     </div>
   );
 
@@ -257,7 +291,7 @@ const MapContent = ({ category, difficulty, onDrillDown, onTrackChange, onOpenSe
           <Compass className="w-5 h-5 text-primary transition-transform duration-700 group-hover:rotate-45" />
           <div className="text-left">
             <p className="text-[9px] font-black uppercase tracking-[0.2em] text-muted-foreground">Navigation HUB</p>
-            <p className="text-xs font-bold text-foreground uppercase tracking-wider">{category.split('-').join(' ')}</p>
+            <p className="text-xs font-bold text-foreground uppercase tracking-wider">{(category || 'General').split('-').join(' ')}</p>
           </div>
           <div className="ml-2 w-6 h-6 rounded-full bg-muted flex items-center justify-center text-[9px] font-black text-primary group-hover:bg-primary group-hover:text-card-foreground transition-colors border border-primary/20">
             {levels.length}

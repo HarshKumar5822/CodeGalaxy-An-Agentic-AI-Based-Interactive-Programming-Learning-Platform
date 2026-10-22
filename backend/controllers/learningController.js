@@ -7,10 +7,22 @@ const mongoose = require('mongoose');
 // Get all levels (with optional filtering)
 exports.getLevels = async (req, res) => {
     try {
-        const { category, difficulty } = req.query;
+        let { category, difficulty } = req.query;
         let query = {};
-        if (category) query.category = category;
-        if (difficulty) query.difficulty = difficulty;
+        if (category) {
+            const trimmed = category.trim();
+            // Handle aliases between dashboard sector labels and DB categories
+            let mappedCategory = trimmed;
+            if (/^backend$/i.test(trimmed)) mappedCategory = 'Node.js';
+            else if (/^devops$/i.test(trimmed)) mappedCategory = 'Docker';
+            else if (/^ai\s*&\s*ml$/i.test(trimmed)) mappedCategory = 'Python';
+            
+            // Case-insensitive exact match
+            query.category = { $regex: new RegExp(`^${mappedCategory.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}$`, 'i') };
+        }
+        if (difficulty) {
+            query.difficulty = { $regex: new RegExp(`^${difficulty.trim()}$`, 'i') };
+        }
 
         const levels = await Level.find(query).sort({ levelNumber: 1 });
         res.json(levels);
@@ -117,7 +129,10 @@ exports.getNextChallenge = async (req, res) => {
 exports.submitChallenge = async (req, res) => {
     try {
         const { challengeId, code, passed } = req.body;
-        const userId = req.user.id;
+        const userId = req.user?.id || req.user?._id;
+        if (!userId) {
+            return res.status(401).json({ message: 'User authentication required to submit challenges.' });
+        }
 
         if (!passed) {
             return res.json({ success: false, message: 'Challenge not passed yet.' });
@@ -157,7 +172,16 @@ exports.submitChallenge = async (req, res) => {
 // Get the logged-in user's learning progress
 exports.getUserProgress = async (req, res) => {
     try {
-        const userId = req.user.id;
+        const userId = req.user?.id || req.user?._id;
+        if (!userId) {
+            return res.json({
+                totalXp: 0,
+                completedChallenges: [],
+                unlockedBadges: [],
+                level: 1
+            });
+        }
+
         const progress = await UserProgress.findOne({ user: userId })
             .populate('completedChallenges.challenge');
         

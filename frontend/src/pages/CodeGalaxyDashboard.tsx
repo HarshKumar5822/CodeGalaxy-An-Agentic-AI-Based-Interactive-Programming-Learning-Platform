@@ -222,8 +222,8 @@ const CodeGalaxyDashboard: React.FC = () => {
                                         />
                                     ) : (
                                         <InteractiveLevelMap 
-                                            category={selectedStack} 
-                                            difficulty={selectedLevel} 
+                                            category={selectedStack || 'Python'} 
+                                            difficulty={selectedLevel || 'Beginner'} 
                                             onDrillDown={(id) => setDrillDownLevelId(id)}
                                             onOpenSelector={() => setSelectorOpen(true)}
                                             onTrackChange={(track, level) => {

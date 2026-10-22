@@ -60,7 +60,7 @@ const generateJSON = async (prompt, options = {}) => {
             response_format: { type: 'json_object' },
             temperature: options.temperature ?? 0.3,
             top_p: 0.9,
-            max_tokens: options.max_tokens ?? 1536,
+            max_tokens: options.max_tokens ?? 4096,
         }),
     });
 

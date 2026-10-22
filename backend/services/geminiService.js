@@ -466,7 +466,17 @@ const getMockForgeChallenge = (userPrompt) => {
     ];
     let instructions = "### Instructions\n- Read input arguments carefully.\n- Optimize for time and space complexity.";
 
-    if (promptLower.includes("reverse") && (promptLower.includes("string") || promptLower.includes("text"))) {
+    if (promptLower.includes("bubble") || (promptLower.includes("sort") && !promptLower.includes("dock"))) {
+        title = "Bubble Sort Algorithm";
+        description = "Implement the Bubble Sort algorithm to sort a list of numbers in ascending order.\n\n### Task\nIterate through the array, comparing adjacent elements and swapping them if they are in the wrong order. Repeat until the list is completely sorted.";
+        difficulty = "Medium";
+        template = `def solve(arr):\n    # Write Bubble Sort implementation\n    n = len(arr)\n    for i in range(n):\n        for j in range(0, n - i - 1):\n            if arr[j] > arr[j + 1]:\n                arr[j], arr[j + 1] = arr[j + 1], arr[j]\n    return arr`;
+        testCases = [
+            { input: "[64, 34, 25, 12, 22, 11, 90]", expectedOutput: "[11, 12, 22, 25, 34, 64, 90]", isHidden: false },
+            { input: "[5, 1, 4, 2, 8]", expectedOutput: "[1, 2, 4, 5, 8]", isHidden: false }
+        ];
+        instructions = "### Instructions\n- Repeatedly compare adjacent pairs and swap them if arr[j] > arr[j+1].\n- Expected Time Complexity: O(N^2), Space Complexity: O(1).";
+    } else if (promptLower.includes("reverse") && (promptLower.includes("string") || promptLower.includes("text"))) {
         title = "Reverse String Constraints";
         description = "Write a function that takes a string as input and returns it reversed.\n\n### Task\nReturn the reversed string.";
         difficulty = "Easy";
